@@ -20,7 +20,7 @@
 
 const calendar = require('./calendar.js');
 const recommendation = require('./recommendation.js');
-const mysql = require('../../util/mysql.js');
+const mysql = require('../../util/mysql1.js');
 
 let doAction = (context) => {
     switch(context.command){
@@ -46,7 +46,7 @@ let doAction = (context) => {
         case "user_settings":
             return mysql.user_settings(context);
         case "search_term":
-            console.log("search_term");
+            return mysql.search_term(context);
 /*        case "finish":
             context.startDate = undefined;
             context.endDate = undefined;
@@ -56,8 +56,8 @@ let doAction = (context) => {
             context.people = undefined;
             context.action = undefined;
             context.data = {};
-            context.command = undefined;*/
-            return context;
+            context.command = undefined;
+            return context; */
     }
 }
 

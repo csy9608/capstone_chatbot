@@ -36,7 +36,16 @@ let recommend_recipe = (context) => {
 
     var ingredients = context.data.ingredients;
     var menu_type = context.data.menu_type;
-    var query = "SELECT menu FROM " + menu_type + " WHERE ingredient LIKE '%"+ingredients + "%';";
+    var query = "SELECT menu FROM " + menu_type + " WHERE ingredient LIKE '%"+ingredients + "%'";
+    if(typeof context.data.preference.priority !== undefined && context.data.preference.priority == "C"){
+        query += "ORDER BY calorie ASC;";
+    }
+    else if(typeof context.data.preference.priority !== undefined && context.data.preference.priority == "T"){
+        query += "ORDER BY cooking_time ASC;";
+    }
+    else{
+      query += ";";
+    }
     console.log(query);
 
     con.query(query , function(err, result) {
@@ -136,7 +145,7 @@ let login = (context) => {
           pretty_result[u] = v;
         });
 
-        if(typeof pretty_result['user_id'] === undefined){
+        if(typeof pretty_result['user_id'] === undefined || pretty_result['user_id'] == null){
           context.login = false;
           context.data.user_id = undefined;
         }
@@ -165,48 +174,75 @@ let user_settings = (context) => {
     var priority = context.data.preference.priority;
     var likes = context.data.preference.likes;
     var hates = context.data.preference.hates;
-    var settings = []
+    var settings = [];
 
     if(context.login){
-          if (typeof allergy !== undefined){
+          if (typeof allergy !== undefined && allergy != null){
               settings.push({col:'allergy', val:allergy});
           }
 
-          if (typeof priority !== undefined){
+          if (typeof priority !== undefined && priority != null){
               settings.push({col:'priority', val:priority});
           }
 
-          if (typeof likes !== undefined){
+          if (typeof likes !== undefined && likes != null){
               settings.push({col:'likes', val:likes});
           }
 
-          if (typeof hates !== undefined){
+          if (typeof hates !== undefined && hates != null){
               settings.push({col:'hates', val:hates});
           }
 
           var query = "UPDATE users SET ";
           for(var j=0 ; j<settings.length; j++){
+            var sub_query = settings[j]['col'] + "= '" + settings[j]['val'] + "'";
+            console.log(sub_query);
 
-            sub_query = settings[j]['col'] + "= '" + settings[j]['val'] + "'";
-            if (j!=(settings.length-1))
-              sub_query += ",";
-
-            query += sub_query;
+            if (j != (settings.length-1)) {
+              sub_query = sub_query + ",";
+            }
+            query = query + sub_query;
           }
-          query += " WHERE user_id='" + user_id + "';"
+          query = query + " WHERE user_id='" + user_id + "';"
           console.log(query);
 
           con.query(query, function(err, result){
             if(err)
               console.log("error ! :" + err);
             else{
+              context.data.preference.done = true;
               resolved(context);
             }
           });
     }
     else {
+      context.data.preference.done = false;
       resolved(context);
     }
+  });
+}
+
+let search_term = (context) => {
+  context.command = undefined;
+  context.need_conversation = true;
+
+  return new Promise((resolved, rejected) => {
+    var term = context.data.term;
+    var query = "SELECT * FROM term WHERE title='" + term + "';";
+    console.log(query);
+    con.query(query, function(err, result){
+      if(err)
+        console.log("error ! :" + err);
+      else{
+        var pretty_result = [];
+        JSON.parse(JSON.stringify(result), (u,v) => {
+          pretty_result[u] = v;
+        });
+        context.data.term_descript = JSON.stringify(result) || {};
+      }
+        console.log(context.data.term_descript);
+        resolved(context);
+    });
   });
 }
 
@@ -215,5 +251,6 @@ module.exports = {
     'search_recipe' : search_recipe,
     'check_id' : check_id,
     'login' : login,
-    "user_settings" : user_settings
+    "user_settings" : user_settings,
+    "search_term" : search_term
 };
