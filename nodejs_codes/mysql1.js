@@ -10,21 +10,46 @@ var con = mysql.createConnection({
   database : credentials.clearDB.database
 });
 
-let refine_recipe = (ugly_recipe) => {
-
-  var refined_recipe = [];
-  JSON.parse(JSON.stringify(ugly_recipe), (u,v) => {
-    refined_recipe[u] = v;
+let prettify_json = (ugly_json) => {
+  var pretty_json = [];
+  JSON.parse(JSON.stringify(ugly_json), (u,v) => {
+    pretty_json[u] = v;
   });
+  return pretty_json;
+}
 
-  var menu = refined_recipe['menu'];
-  var image = refined_recipe['image'];
-  var ingredient = refined_recipe['ingredient'];
-  var cooking_step = refined_recipe['cooking_step'];//.split('|');
-  var cooking_time = refined_recipe['cooking_time'];
-  var calorie = refined_recipe['calorie'];
+let prettify_term_descript = (ugly_term_descript) => {
+  var pretty_term_descript = "[" + ugly_term_descript['title'] + "]</br> - " + ugly_term_descript['descript'];
+  return pretty_term_descript;
+}
 
-  var pretty_recipe = "</br><img src='"+ image +"'' alt='image' style='width:200px;height:100px;'></br>메뉴: "+ menu +"</br> 재료: " + ingredient +"</br> 만드는 방법: "+ cooking_step +"</br> 조리 시간: "+ cooking_time +"</br> 칼로리: " + calorie + "</br>";
+let prettify_menus = (ugly_menus) => {
+  var menus = ugly_menus['menus'].split(',');
+  var pretty_menus = "";
+  for(var i=0; i<menus.length; i++){
+      pretty_menus = pretty_menus + "</br> - " + menus[i];
+  }
+  return pretty_menus;
+}
+
+let prettify_recipe = (ugly_recipe) => {
+  var menu = ugly_recipe['menu'];
+  var image = ugly_recipe['image'];
+  var ingredient = ugly_recipe['ingredient'].split('|');
+  var cooking_step = ugly_recipe['cooking_step'].split('|');
+  var cooking_time = ugly_recipe['cooking_time'];
+  var calorie = ugly_recipe['calorie'];
+
+  var ingredients = "";
+  for(var i=0; i<ingredient.length; i++){
+    ingredients = ingredients + "</br>&emsp;" + ingredient[i];
+  }
+  var cooking_steps = "";
+  for(var i=0; i<cooking_step.length; i++){
+    cooking_steps = cooking_steps + "</br>&emsp;" + cooking_step[i];
+  }
+  var pretty_recipe = "</br><img src='"+ image +"'' alt='image' style='width:400px;height:400px;'></br>["+ menu +"]</br> - 재료: " + ingredients +"</br> - 만드는 방법: "+ cooking_steps +"</br> - 조리 시간: "+ cooking_time +"</br> - 칼로리: " + calorie + "</br>";
+
   return pretty_recipe;
 }
 
@@ -38,25 +63,21 @@ let recommend_recipe = (context) => {
     var menu_type = context.data.menu_type;
     var query = "SELECT menu FROM " + menu_type + " WHERE ingredient LIKE '%"+ingredients + "%'";
     if(typeof context.data.preference.priority !== undefined && context.data.preference.priority == "C"){
-        query += "ORDER BY calorie ASC;";
+        query += "ORDER BY calorie ASC";
     }
     else if(typeof context.data.preference.priority !== undefined && context.data.preference.priority == "T"){
-        query += "ORDER BY cooking_time ASC;";
+        query += "ORDER BY cooking_time ASC";
     }
-    else{
-      query += ";";
-    }
+    query = "SELECT GROUP_CONCAT(menu) as menus from (" + query +") as R;";
     console.log(query);
 
     con.query(query , function(err, result) {
       if(err)
         console.log("error ! :" + err);
       else{
-        var menus = [];
-        JSON.parse(JSON.stringify(result), (u,v) => {
-          menus[u] = v;
-        });
-        context.data.recom_menu_list = JSON.stringify(result) || {};
+        var pretty_json = prettify_json(result);
+        var pretty_menus = prettify_menus(pretty_json);
+        context.data.recom_menu_list = pretty_menus || {};
         console.log(context.data.recom_menu_list);
         resolved(context);
       }
@@ -76,7 +97,9 @@ let search_recipe = (context) => {
         if(err)
           console.log("error ! :" + err);
         else{
-          context.data.recipe_result = refine_recipe(result) || {};
+          var pretty_json = prettify_json(result);
+          var pretty_recipe = prettify_recipe(pretty_json);
+          context.data.recipe_result = pretty_recipe || {};
           console.log(context.data.recipe_result);
           resolved(context);
         }
@@ -98,11 +121,9 @@ let check_id = (context) => {
       if(err)
         console.log("error ! :" + err);
       else{
-        var pretty_result = [];
-        JSON.parse(JSON.stringify(result), (u,v) => {
-          pretty_result[u] = v;
-        });
-        if(typeof pretty_result['user_id'] === 'undefined'){
+        var pretty_json = prettify_json(result);
+
+        if(typeof pretty_json['user_id'] === 'undefined'){
           context.data.id_exists = false;
           var query = "INSERT INTO users(user_id) VALUES('" + user_id + "');";
           console.log(query);
@@ -140,22 +161,19 @@ let login = (context) => {
       if(err)
         console.log("error ! :" + err);
       else{
-        var pretty_result = [];
-        JSON.parse(JSON.stringify(result), (u,v) => {
-          pretty_result[u] = v;
-        });
+        var pretty_json = prettify_json(result);
 
-        if(typeof pretty_result['user_id'] === undefined || pretty_result['user_id'] == null){
+        if(typeof pretty_json['user_id'] === undefined || pretty_json['user_id'] == null){
           context.login = false;
           context.data.user_id = undefined;
         }
         else{
           context.login = true;
           context.data.preference = {};
-          context.data.preference.allergy = pretty_result['allergy'];
-          context.data.preference.priority = pretty_result['priority'];
-          context.data.preference.likes = pretty_result['likes'];
-          context.data.preference.hates = pretty_result['hates'];
+          context.data.preference.allergy = pretty_json['allergy'];
+          context.data.preference.priority = pretty_json['priority'];
+          context.data.preference.likes = pretty_json['likes'];
+          context.data.preference.hates = pretty_json['hates'];
         }
         console.log(context.data.login);
         resolved(context);
@@ -234,11 +252,9 @@ let search_term = (context) => {
       if(err)
         console.log("error ! :" + err);
       else{
-        var pretty_result = [];
-        JSON.parse(JSON.stringify(result), (u,v) => {
-          pretty_result[u] = v;
-        });
-        context.data.term_descript = JSON.stringify(result) || {};
+        var pretty_json = prettify_json(result);
+        var pretty_term_descript = prettify_term_descript(pretty_json);
+        context.data.term_descript = pretty_term_descript || {};
       }
         console.log(context.data.term_descript);
         resolved(context);
@@ -251,17 +267,15 @@ let recommend_meal = (context, meal) => {
   context.need_conversation = true;
 
   return new Promise((resolved, rejected) => {
-    var query = "SELECT menu FROM " + meal + ";";
+    var query = "SELECT GROUP_CONCAT(menu) AS menus FROM (SELECT menu FROM " + meal + ") AS R;";
     console.log(query);
     con.query(query, function(err, result){
       if(err)
         console.log("error ! :" + err);
       else{
-        var pretty_result = [];
-        JSON.parse(JSON.stringify(result), (u,v) => {
-          pretty_result[u] = v;
-        });
-        context.data.recom_menu_list = JSON.stringify(result) || {};
+        var pretty_json = prettify_json(result);
+        var pretty_menus = prettify_menus(pretty_json);
+        context.data.recom_menu_list = pretty_menus || {};
       }
         console.log(context.data.recom_menu_list);
         resolved(context);
