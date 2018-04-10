@@ -246,11 +246,35 @@ let search_term = (context) => {
   });
 }
 
+let recommend_meal = (context, meal) => {
+  context.command = undefined;
+  context.need_conversation = true;
+
+  return new Promise((resolved, rejected) => {
+    var query = "SELECT menu FROM " + meal + ";";
+    console.log(query);
+    con.query(query, function(err, result){
+      if(err)
+        console.log("error ! :" + err);
+      else{
+        var pretty_result = [];
+        JSON.parse(JSON.stringify(result), (u,v) => {
+          pretty_result[u] = v;
+        });
+        context.data.recom_menu_list = JSON.stringify(result) || {};
+      }
+        console.log(context.data.recom_menu_list);
+        resolved(context);
+    });
+  });
+}
+
 module.exports = {
     'recommend_recipe': recommend_recipe,
     'search_recipe' : search_recipe,
     'check_id' : check_id,
     'login' : login,
     "user_settings" : user_settings,
-    "search_term" : search_term
+    "search_term" : search_term,
+    "recommend_meal" : recommend_meal
 };

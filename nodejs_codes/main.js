@@ -47,6 +47,12 @@ let doAction = (context) => {
             return mysql.user_settings(context);
         case "search_term":
             return mysql.search_term(context);
+        case "recommend_breakfast":
+            return mysql.recommend_meal(context, "breakfast")
+        case "recommend_lunch":
+            return mysql.recommend_meal(context, "lunch")
+        case "recommend_dinner":
+            return mysql.recommend_meal(context, "dinner")
 /*        case "finish":
             context.startDate = undefined;
             context.endDate = undefined;
