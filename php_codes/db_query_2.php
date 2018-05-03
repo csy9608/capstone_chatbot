@@ -31,7 +31,7 @@
 	<title>DB QUERY</title>
 </head>
 <body>
-<form class="" action="db_query.php" method="post">
+<form class="" action="db_query_2.php" method="post">
   <textarea name="query" rows="8" cols="80"></textarea></br>
   <input type="submit" name="send" value="send">
 </form>
