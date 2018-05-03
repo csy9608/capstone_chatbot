@@ -18,23 +18,51 @@ let prettify_json = (ugly_json) => {
   return pretty_json;
 }
 
-let prettify_term_descript = (ugly_term_descript) => {
-  var pretty_term_descript = "[" + ugly_term_descript['title'] + "]</br> - " + ugly_term_descript['descript'];
+let prettify_term_descript = (interface_="web" , ugly_term_descript) => {
+  var enter;
+  if(interface_ == "web"){
+    enter = "</br>";
+  }
+  else{
+    enter = "\n";
+  }
+  var pretty_term_descript = "[" + ugly_term_descript['title'] + "]"+ enter +" - " + ugly_term_descript['descript'];
   return pretty_term_descript;
 }
 
-let prettify_menus = (ugly_menus) => {
+let prettify_menus = (interface_="web", ugly_menus) => {
+  var enter;
+  if(interface_ == "web"){
+    enter = "</br>";
+  }
+  else{
+    enter = "\n";
+  }
+
   var menus = ugly_menus['menus'].split(',');
   var pretty_menus = "";
   for(var i=0; i<menus.length; i++){
-      pretty_menus = pretty_menus + "</br> - " + menus[i];
+      pretty_menus = pretty_menus + enter +" - " + menus[i];
   }
   return pretty_menus;
 }
 
-let prettify_recipe = (ugly_recipe) => {
+let prettify_recipe = (interface_="web", ugly_recipe) => {
+  var enter;
+  var image;
+  var space;
+  if(interface_ == "web"){
+    enter = "</br>";
+    image = "<img src='" + ugly_recipe['image'] +"' alt='image' style='width:300px;height:300px;'>";
+    space = "&emsp;";
+  }
+  else{
+    enter = "\n";
+    image = "";
+    space = " ";
+  }
+
   var menu = ugly_recipe['menu'];
-  var image = ugly_recipe['image'];
   var ingredient = ugly_recipe['ingredient'].split('|');
   var cooking_step = ugly_recipe['cooking_step'].split('|');
   var cooking_time = ugly_recipe['cooking_time'];
@@ -42,13 +70,13 @@ let prettify_recipe = (ugly_recipe) => {
 
   var ingredients = "";
   for(var i=0; i<ingredient.length; i++){
-    ingredients = ingredients + "</br>&emsp;" + ingredient[i];
+    ingredients = ingredients + enter + space + ingredient[i];
   }
   var cooking_steps = "";
   for(var i=0; i<cooking_step.length; i++){
-    cooking_steps = cooking_steps + "</br>&emsp;" + cooking_step[i];
+    cooking_steps = cooking_steps + enter + space + cooking_step[i];
   }
-  var pretty_recipe = "</br><img src='"+ image +"'' alt='image' style='width:400px;height:400px;'></br>["+ menu +"]</br> - 재료: " + ingredients +"</br> - 만드는 방법: "+ cooking_steps +"</br> - 조리 시간: "+ cooking_time +"</br> - 칼로리: " + calorie + "</br>";
+  var pretty_recipe = enter + image + enter + "["+ menu +"]" + enter + " - 재료: " + ingredients + enter +" - 만드는 방법: "+ cooking_steps + enter +" - 조리 시간: "+ cooking_time + enter +" - 칼로리: " + calorie + enter;
 
   return pretty_recipe;
 }
@@ -76,7 +104,7 @@ let recommend_recipe = (context) => {
         console.log("error ! :" + err);
       else{
         var pretty_json = prettify_json(result);
-        var pretty_menus = prettify_menus(pretty_json);
+        var pretty_menus = prettify_menus(context.user_key, pretty_json);
         context.data.recom_menu_list = pretty_menus || {};
         console.log(context.data.recom_menu_list);
         resolved(context);
@@ -98,7 +126,7 @@ let search_recipe = (context) => {
           console.log("error ! :" + err);
         else{
           var pretty_json = prettify_json(result);
-          var pretty_recipe = prettify_recipe(pretty_json);
+          var pretty_recipe = prettify_recipe(context.user_key, pretty_json);
           context.data.recipe_result = pretty_recipe || {};
           console.log(context.data.recipe_result);
           resolved(context);
@@ -253,7 +281,7 @@ let search_term = (context) => {
         console.log("error ! :" + err);
       else{
         var pretty_json = prettify_json(result);
-        var pretty_term_descript = prettify_term_descript(pretty_json);
+        var pretty_term_descript = prettify_term_descript(context.user_key, pretty_json);
         context.data.term_descript = pretty_term_descript || {};
       }
         console.log(context.data.term_descript);
@@ -274,7 +302,7 @@ let recommend_meal = (context, meal) => {
         console.log("error ! :" + err);
       else{
         var pretty_json = prettify_json(result);
-        var pretty_menus = prettify_menus(pretty_json);
+        var pretty_menus = prettify_menus(context.user_key, pretty_json);
         context.data.recom_menu_list = pretty_menus || {};
       }
         console.log(context.data.recom_menu_list);
