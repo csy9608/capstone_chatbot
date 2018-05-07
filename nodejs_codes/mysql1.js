@@ -9,59 +9,36 @@ var con = mysql.createConnection({
   password: credentials.clearDB.password,
   database : credentials.clearDB.database
 });
+const enter = "</br>";
+const space = "&emsp;";
 
 let prettify_json = (ugly_json) => {
   var pretty_json = [];
   JSON.parse(JSON.stringify(ugly_json), (u,v) => {
     pretty_json[u] = v;
   });
+
   return pretty_json;
 }
 
-let prettify_term_descript = (interface_="web" , ugly_term_descript) => {
-  var enter;
-  if(interface_ == "web"){
-    enter = "</br>";
-  }
-  else{
-    enter = "\n";
-  }
+let prettify_term_descript = (ugly_term_descript) => {
   var pretty_term_descript = "[" + ugly_term_descript['title'] + "]"+ enter +" - " + ugly_term_descript['descript'];
   return pretty_term_descript;
 }
 
-let prettify_menus = (interface_="web", ugly_menus) => {
-  var enter;
-  if(interface_ == "web"){
-    enter = "</br>";
-  }
-  else{
-    enter = "\n";
-  }
-
+let prettify_menus = (ugly_menus) => {
   var menus = ugly_menus['menus'].split(',');
   var pretty_menus = "";
+
   for(var i=0; i<menus.length; i++){
-      pretty_menus = pretty_menus + enter +" - " + menus[i];
+        pretty_menus = pretty_menus + enter +" - " + menus[i];
   }
+
   return pretty_menus;
 }
 
-let prettify_recipe = (interface_="web", ugly_recipe) => {
-  var enter;
-  var image;
-  var space;
-  if(interface_ == "web"){
-    enter = "</br>";
-    image = "<img src='" + ugly_recipe['image'] +"' alt='image' style='width:300px;height:300px;'>";
-    space = "&emsp;";
-  }
-  else{
-    enter = "\n";
-    image = "";
-    space = " ";
-  }
-
+let prettify_recipe = (ugly_recipe) => {
+  var image = "<img src='" + ugly_recipe['image'] +"' alt='image' style='width:300px;height:300px;'>";
   var menu = ugly_recipe['menu'];
   var ingredient = ugly_recipe['ingredient'].split('|');
   var cooking_step = ugly_recipe['cooking_step'].split('|');
@@ -90,25 +67,40 @@ let recommend_recipe = (context) => {
     var ingredients = context.data.ingredients;
     var menu_type = context.data.menu_type;
     var query = "SELECT menu FROM " + menu_type + " WHERE ingredient LIKE '%"+ingredients + "%'";
-    if(typeof context.data.preference.priority !== undefined && context.data.preference.priority == "C"){
-        query += "ORDER BY calorie ASC";
+
+    if(typeof context.data.preference.priority !== undefined){
+        switch (context.data.preference.priority) {
+          case "CA":
+            query += "ORDER BY calorie ASC";
+            break;
+          case "CD":
+            query += "ORDER BY calorie DESC";
+            break;
+          case "TD":
+            query += "ORDER BY cooking_time DESC";
+            break;
+          case "TA":
+            query += "ORDER BY cooking_time ASC";
+            break;
+          default:
+        }
     }
-    else if(typeof context.data.preference.priority !== undefined && context.data.preference.priority == "T"){
-        query += "ORDER BY cooking_time ASC";
-    }
+
     query = "SELECT GROUP_CONCAT(menu) as menus from (" + query +") as R;";
     console.log(query);
 
     con.query(query , function(err, result) {
-      if(err)
+      if(err){
         console.log("error ! :" + err);
+        context.error = true;
+      }
       else{
         var pretty_json = prettify_json(result);
         var pretty_menus = prettify_menus(context.user_key, pretty_json);
         context.data.recom_menu_list = pretty_menus || {};
         console.log(context.data.recom_menu_list);
-        resolved(context);
       }
+      resolved(context);
   });
   });
 }
@@ -122,15 +114,17 @@ let search_recipe = (context) => {
       var query = "SELECT * FROM RECIPES WHERE menu='" + menu + "';";
       console.log(query);
       con.query(query, function(err, result){
-        if(err)
+        if(err){
           console.log("error ! :" + err);
+          context.error = true;
+        }
         else{
           var pretty_json = prettify_json(result);
           var pretty_recipe = prettify_recipe(context.user_key, pretty_json);
           context.data.recipe_result = pretty_recipe || {};
           console.log(context.data.recipe_result);
-          resolved(context);
         }
+        resolved(context);
       });
     });
 }
@@ -146,8 +140,10 @@ let check_id = (context) => {
     console.log(query);
 
     con.query(query, function(err, result) {
-      if(err)
+      if(err){
         console.log("error ! :" + err);
+        context.error = true;
+      }
       else{
         var pretty_json = prettify_json(result);
 
@@ -157,12 +153,13 @@ let check_id = (context) => {
           console.log(query);
 
           con.query(query, function(err, result) {
-            if(err)
-              console.log("error !" + err);
+            if(err){
+              console.log("error ! :" + err);
+              context.error = true;
+            }
             else{
               context.login = true;
               console.log(context.data.id_exists);
-              resolved(context);
             }
           });
         }
@@ -173,6 +170,7 @@ let check_id = (context) => {
           resolved(context);
         }
       }
+      resolved(context);
     });
   });
 }
@@ -186,8 +184,10 @@ let login = (context) => {
     var query = "SELECT * FROM users WHERE user_id='" + user_id + "';";
     console.log(query);
     con.query(query, function(err, result){
-      if(err)
+      if(err){
         console.log("error ! :" + err);
+        context.error = true;
+      }
       else{
         var pretty_json = prettify_json(result);
 
@@ -204,8 +204,8 @@ let login = (context) => {
           context.data.preference.hates = pretty_json['hates'];
         }
         console.log(context.data.login);
-        resolved(context);
       }
+      resolved(context);
     });
   });
 }
@@ -253,12 +253,14 @@ let user_settings = (context) => {
           console.log(query);
 
           con.query(query, function(err, result){
-            if(err)
+            if(err){
               console.log("error ! :" + err);
+              context.error = true;
+            }
             else{
               context.data.preference.done = true;
-              resolved(context);
             }
+            resolved(context);
           });
     }
     else {
@@ -277,15 +279,17 @@ let search_term = (context) => {
     var query = "SELECT * FROM term WHERE title='" + term + "';";
     console.log(query);
     con.query(query, function(err, result){
-      if(err)
+      if(err){
         console.log("error ! :" + err);
+        context.error = true;
+      }
       else{
         var pretty_json = prettify_json(result);
         var pretty_term_descript = prettify_term_descript(context.user_key, pretty_json);
         context.data.term_descript = pretty_term_descript || {};
       }
-        console.log(context.data.term_descript);
-        resolved(context);
+      console.log(context.data.term_descript);
+      resolved(context);
     });
   });
 }
@@ -298,15 +302,17 @@ let recommend_meal = (context, meal) => {
     var query = "SELECT GROUP_CONCAT(menu) AS menus FROM (SELECT menu FROM " + meal + ") AS R;";
     console.log(query);
     con.query(query, function(err, result){
-      if(err)
+      if(err){
         console.log("error ! :" + err);
+        context.error = true;
+      }
       else{
         var pretty_json = prettify_json(result);
         var pretty_menus = prettify_menus(context.user_key, pretty_json);
         context.data.recom_menu_list = pretty_menus || {};
       }
-        console.log(context.data.recom_menu_list);
-        resolved(context);
+      console.log(context.data.recom_menu_list);
+      resolved(context);
     });
   });
 }
