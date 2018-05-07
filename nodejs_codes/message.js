@@ -34,7 +34,7 @@ let postMessage = (req, res) => {
         }, (err, doc) => {
             return res.json({
                 "message" : {
-                  "text" : getOutputText(data)
+                  "text" : getOutputText(data).replace(/<\/br>/gi,"\n").replace(/&emsp;/gi, " ")
                 }
             });
           });
@@ -64,7 +64,7 @@ let postMessage = (req, res) => {
 
         return res.json({
           "message" : {
-            "text" : getOutputText(data)
+            "text" : getOutputText(data).replace(/<\/br>/gi,"\n").replace(/&emsp;/gi, " ")
           }
         });
       }).catch(function(err){
