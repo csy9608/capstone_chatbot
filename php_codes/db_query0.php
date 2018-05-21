@@ -1,10 +1,10 @@
 <?php
 
   if(isset($_POST['send'])){
-    $db_server = "210.94.185.46:3306";
-    $db_id = "root";
-    $db_password = "choi";
-    $db_name = "recipe_bot";
+    $db_server = "us-cdbr-sl-dfw-01.cleardb.netus-cdbr-sl-dfw-01.cleardb.net";
+    $db_id = "ibmx_e2d7bb714b1c241";
+    $db_password = "a8da4683";
+    $db_name = "bbcec353a2bef7";
     $db = mysqli_connect($db_server, $db_id , $db_password, $db_name);
 
     if(mysqli_connect_errno())
