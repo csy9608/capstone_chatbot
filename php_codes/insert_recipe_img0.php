@@ -15,38 +15,72 @@
     $type_id = $_POST['type_id'];
     $menu = $_POST['menu'];
     $ingredients = $_POST['ingredients'];
-    $amounts = $_POST['amounts']
+    $amounts = $_POST['amounts'];
 
     $steps = "";
-    for($i=0; $i<count($_POST['ingredients']); $i++){
-      $steps += ("{$i}. " + $_POST['ingredients'][$i])
-      if($i !== (count($_POST['ingredients'])-1))
-        $steps += "|";
+    for($i=0; $i<count($_POST['steps']); $i++){
+      $steps = $steps.("{$i}. {$_POST['steps'][$i]}");
+      if($i !== (count($_POST['steps'])-1))
+        $steps = $steps."|";
     }
-    $time=$_POST['time'];
-    $calorie=$_POST['calorie'];
+    $time_ = $_POST['time'];
+    $calorie = $_POST['calorie'];
 
-    # 1. insert row in recipe table
-    $query = "INSERT INTO RECIPES(`type_id`, `menu`, `image`, `steps`, `time`, `calorie`) VALUES({$type_id}, '{$menu}', '{$image}', '{$steps}', {$cooking_time}, {$calorie});";
-    echo $query;
+    // 1. insert row in recipe table and get id
+    echo "</br>Part1 : insert recipe</br>";
+    $query1 = "INSERT INTO recipe(`type_id`, `menu`, `image`, `steps`, `time`, `calorie`) VALUES ({$type_id}, '{$menu}', '{$image}', '{$steps}', {$time_}, {$calorie});";
+    echo "{$query1}.</br>";
+    mysqli_query($db, $query1);
 
-    # 2. check ingredient table and get id (if not exsits add row in ingredient table)
+    $query1 = "SELECT id FROM recipe WHERE `menu`='{$menu}';";
+    echo "{$query1}.</br>";
+    $result1 = mysqli_query($db, $query1);
+    $row1 = mysqli_fetch_array($result1);
+    $recipe_id = $row1['id'];
+    // send query1
+    echo "=> {$recipe_id}</br>";
 
-    # 4. insert rows in recipe+ingredient table
+    // 2. check ingredient table and get id (if not exsits add row in ingredient table)
+    echo "</br>Part2 : insert ingredient and get Id</br>";
+    $ingredients_id = array();
 
+    for($i=0; $i<count($ingredients); $i++){
+      // query : insert ingredient if not exists and get id of ingredient
+      $query2 = "SELECT id FROM ingredient WHERE name='{$ingredients[$i]}';";
+      echo "{$query2}</br>";
+      $result2 = mysqli_query($db, $query2);
+      if(mysqli_num_rows($result2)==0){
+        $query2 = "INSERT INTO ingredient (name) VALUES ('{$ingredients[$i]}');";
+        echo "{$query2}</br>";
+        mysqli_query($db, $query2);
+        $query2 = "SELECT id FROM ingredient WHERE name='{$ingredients[$i]}';";
+        echo "{$query2}</br>";
+        $result2 = mysqli_query($db, $query2);
+      }
+      $row2 = mysqli_fetch_array($result2);
+      $ingredients_id[$i] = $row2['id'];
+      echo " => {$ingredients_id[$i]} </br>";
+    }
+
+    // 3. insert rows in recipe+ingredient table
+    echo "</br>Part3 : Insert recipe+ingredient</br>";
+    for($i=0; $i<count($ingredients); $i++){
+      // insert recipe+ingredient
+       $query3 = "INSERT INTO `recipe+ingredient`(`ingredient_id`, `recipe_id`, `amount`) VALUES ({$ingredients_id[$i]}, {$recipe_id}, '{$amounts[$i]}');";
+       echo "{$query3}</br>";
+       mysqli_query($db, $query3);
+    }
+    mysqli_close($db);
+
+    echo "</br>Part4 : upload image and update recipe table</br>";
     if (move_uploaded_file($_FILES['image']['tmp_name'], $target)) {
-      $msg = "Image uploaded successfully";
-      $query = "INSERT INTO RECIPES(menu_type, menu, image, ingredient, cooking_step, cooking_time, calorie) VALUES({$menu_type}, '{$menu}', '{$image}' ,'{$ingredient}', '{$cooking_step}', {$cooking_time}, {$calorie});";
-      echo "</br>".$query."</br>";
-      mysqli_query($db, $query);
-      $query = "SELECT * FROM RECIPES WHERE menu='$menu';";
-      echo "</br>".$query."</br>";
-      $result = mysqli_query($db, $query);
+      echo "Image uploaded successfully";
     }
     else{
-      $msg = "Failed to upload image";
+      echo "Failed to upload image";
     }
-    echo $msg;
+
+    echo "</br> <h2><a href='search_menu0.php?id={$recipe_id}'>see result</a></h2>";
   }
 ?>
 
@@ -83,7 +117,7 @@
       function add_recipe(){
         recipe_cnt++;
         var para = document.createElement("p");
-        para.innerHTML += ((recipe_cnt+1)+" ");
+        para.innerHTML += ((recipe_cnt+1)+". ");
 
         var step = document.createElement("INPUT");
         step.setAttribute("type", "text");
@@ -102,9 +136,9 @@
           <p>● 메뉴 이름:
             <input type="text" name="menu">
           </p>
-          <p>● 종류: <input type="radio" name="menu_type_id" value="1">일반레시피</input>
-              <input type="radio" name="menu_type_id" value="2">배달음식</input>
-              <input type="radio" name="menu_type_id" value="3">편의점꿀팁레시피</input>
+          <p>● 종류: <input type="radio" name="type_id" value="1">일반레시피</input>
+              <input type="radio" name="type_id" value="2">배달음식</input>
+              <input type="radio" name="type_id" value="3">편의점꿀팁레시피</input>
           </p>
           <p>● 재료:
             <p>
@@ -132,7 +166,7 @@
             <button type="button" onclick="add_recipe()">단계 추가</button>
           <p>
             ● 이미지:
-            <input type="file" name="imgae">
+            <input type="file" name="image">
           </p>
       </br><input type="submit" name="submit" value="레시피 업로드" style="width:100px;height:50px">
     </form>
