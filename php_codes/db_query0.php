@@ -1,14 +1,14 @@
 <?php
 
   if(isset($_POST['send'])){
-    $db_server = "us-cdbr-sl-dfw-01.cleardb.netus-cdbr-sl-dfw-01.cleardb.net";
-    $db_id = "ibmx_e2d7bb714b1c241";
+    $db_server = "us-cdbr-sl-dfw-01.cleardb.net";
+    $db_id = "bbcec353a2bef7";
     $db_password = "a8da4683";
-    $db_name = "bbcec353a2bef7";
+    $db_name = "ibmx_e2d7bb714b1c241";
     $db = mysqli_connect($db_server, $db_id , $db_password, $db_name);
 
     if(mysqli_connect_errno())
-      echo "error !";
+      echo "[error]: ".mysqli_connect_error();
 
     $query = $_POST['query'];
     echo "<p>".$query."</p>";
