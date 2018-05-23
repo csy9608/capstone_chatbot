@@ -17,7 +17,7 @@
     while ($row = mysqli_fetch_array($result)) {
       echo "Search Success";
       echo "<div id='img_div'>";
-      echo "<p><img src='{$row['image']}' alt='image_load_failed' height='42' width='42'></p>";
+      echo '<p><img src="{$row['image']}" alt="image_load_failed" height=42 width=42></p>';
       echo "</div>";
       echo "<p>id : {$recipe_id}</p>";
       echo "<p>menu_type : {$row['type_id']}</p>";

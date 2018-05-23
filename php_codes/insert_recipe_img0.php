@@ -19,7 +19,7 @@
 
     $steps = "";
     for($i=0; $i<count($_POST['steps']); $i++){
-      $steps = $steps.("{$i}. {$_POST['steps'][$i]}");
+      $steps = $steps.("{$_POST['steps'][$i]}");
       if($i !== (count($_POST['steps'])-1))
         $steps = $steps."|";
     }
@@ -77,7 +77,8 @@
       echo "Image uploaded successfully";
     }
     else{
-      echo "Failed to upload image";
+      echo "Failed to upload image in {$target} : ";
+      echo $_FILES['image']['error'];
     }
 
     echo "</br> <h2><a href='search_menu0.php?id={$recipe_id}'>see result</a></h2>";
@@ -132,7 +133,7 @@
   </head>
   <body>
     <h1>[ 메뉴 레시피 넣기 :D ]</h1>
-        <form class="" action="insert_recipe_img0.php" method="post">
+        <form class="" action="insert_recipe_img0.php" method="post" enctype="multipart/form-data">
           <p>● 메뉴 이름:
             <input type="text" name="menu">
           </p>
