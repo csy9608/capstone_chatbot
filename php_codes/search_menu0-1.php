@@ -10,28 +10,28 @@
       $query = "SELECT * FROM recipe WHERE menu='{$recipe_menu}';";
       echo "</br>{$query}</br>";
       $result = mysqli_query($db, $query);
+      $row = mysqli_fetch_array($result);
 
-      $query2 = "SELECT `ingredient`.name AS ingredient_name, `recipe+ingredient`.amount AS ingredient_amount FROM `ingredient` INNER JOIN `recipe+ingredient` ON `ingredient`.id=`recipe+ingredient`.id AND `recipe+ingredient`.recipe_id={$recipe_id};";
+      $query2 = "SELECT `ingredient`.name AS ingredient_name, `recipe+ingredient`.amount AS ingredient_amount FROM `ingredient` INNER JOIN `recipe+ingredient` ON `ingredient`.id=`recipe+ingredient`.id AND `recipe+ingredient`.recipe_id={$row['id']};";
       echo "</br>{$query2}</br>";
       $result2 = mysqli_query($db, $query2);
 
-      while ($row = mysqli_fetch_array($result)) {
-        echo "Search Success";
-        echo "<div id='img_div'>";
-        echo "<p><img src='{$row['image']}' alt='image_load_failed' height='42' width='42'></p>";
-        echo "</div>";
-        echo "<p>id : {$recipe_id}</p>";
-        echo "<p>menu_type : {$row['type_id']}</p>";
-        echo "<p>menu : {$row['menu']}</p>";
-        echo "<p>ingredients: ";
-        while($row2 = mysqli_fetch_array($result2)){
-          echo "<p> {$row2['ingredient_name']} : {$row2['ingredient_amount']} </p>";
-        }
-        echo "</p>";
-        echo "<p>steps : {$row['steps']}</p>";
-        echo "<p>calorie : {$row['calorie']}</p>";
-        echo "<p>time : {$row['time']}</p>";
+      echo "Search Success";
+      echo "<div id='img_div'>";
+      echo "<p><img src='{$row['image']}' alt='image_load_failed' height='42' width='42'></p>";
+      echo "</div>";
+      echo "<p>id : {$row['id']}</p>";
+      echo "<p>menu_type : {$row['type_id']}</p>";
+      echo "<p>menu : {$row['menu']}</p>";
+      echo "<p>ingredients: ";
+      while($row2 = mysqli_fetch_array($result2)){
+        echo "<p> {$row2['ingredient_name']} : {$row2['ingredient_amount']} </p>";
       }
+      echo "</p>";
+      echo "<p>steps : {$row['steps']}</p>";
+      echo "<p>calorie : {$row['calorie']}</p>";
+      echo "<p>time : {$row['time']}</p>";
+
       mysqli_close($db);
     }
 ?>
