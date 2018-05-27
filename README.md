@@ -1,6 +1,6 @@
 
 # Recipe Service Chatbot 
-- Project of capstone design course (2018 spring semester)
+- Team project of 'capstone design' course (2018 spring semester)
 
 - Services provided
   1. settings for individual user account (priorities, favorite/worst ingredients, allergy)
