@@ -77,30 +77,29 @@ let recommend_recipe = (context) => {
         query += " UNION ALL";
       }
 
-      query += "(SELECT `menu` FROM " + menu_type + " WHERE `id` IN (SELECT recipe_id FROM `recipe+ingredient` WHERE `ingredient_id` IN (SELECT `id` FROM `ingredient` WHERE `name` LIKE '%" + ingredients[i] + "%')))";
-
-/*
-      if(typeof context.data.preference.priority !== undefined){
-          switch (context.data.preference.priority) {
-            case "CA":
-              query += "ORDER BY `calorie` ASC";
-              break;
-            case "CD":
-              query += "ORDER BY `calorie` DESC";
-              break;
-            case "TD":
-              query += "ORDER BY `time` DESC";
-              break;
-            case "TA":
-              query += "ORDER BY `time` ASC";
-              break;
-            default:
-          }
-    }
-    */
+      query += "(SELECT `menu`, `calorie`, `time` FROM " + menu_type + " WHERE `id` IN (SELECT recipe_id FROM `recipe+ingredient` WHERE `ingredient_id` IN (SELECT `id` FROM `ingredient` WHERE `name` LIKE '%" + ingredients[i] + "%')))";
   }
 
-  query = "SELECT GROUP_CONCAT(`menu`) AS `menus` FROM (" + query +" LIMIT 5) as `R`;";
+  query = "SELECT `menu` , COUNT(`menu`) AS `freq`, `calorie`, `time` FROM (" + query + ") AS `M` GROUP BY `menu` ORDER BY `freq` DESC";
+  if(typeof context.data.preference.priority !== undefined){
+      switch (context.data.preference.priority) {
+        case "CA":
+          query += ", `calorie` ASC";
+          break;
+        case "CD":
+          query += ", `calorie` DESC";
+          break;
+        case "TD":
+          query += ", `time` DESC";
+          break;
+        case "TA":
+          query += ", `time` ASC";
+          break;
+        default:
+      }
+  }
+  query += " LIMIT 5";
+  query = "SELECT GROUP_CONCAT(`menu`) AS `menus` FROM (" + query +") as `R`;";
   console.log(query);
 
   con.query(query , function(err, result) {
