@@ -1,3 +1,5 @@
+// util/mysql1.js
+
 'use strict';
 
 const credentials = require('./service_credentials');
@@ -98,7 +100,7 @@ let recommend_recipe = (context) => {
     */
   }
 
-  query = "SELECT GROUP_CONCAT(`menu`) AS `menus` FROM (" + query +") as `R`;";
+  query = "SELECT GROUP_CONCAT(`menu`) AS `menus` FROM (" + query +" LIMIT 5) as `R`;";
   console.log(query);
 
   con.query(query , function(err, result) {
@@ -136,6 +138,7 @@ let search_recipe = (context) => {
           var pretty_json = prettify_json(result);
           var pretty_recipe = prettify_recipe(pretty_json);
           context.data.recipe_result = pretty_recipe || {};
+          context.image = pretty_json['image']; // set image url (For kakaotalk photo output)
           console.log(context.data.recipe_result);
         }
         resolved(context);

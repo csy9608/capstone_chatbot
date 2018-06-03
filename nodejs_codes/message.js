@@ -1,3 +1,5 @@
+// api/kakao/message.js
+
 'use strict';
 
 const conversation = require('../message');
@@ -13,6 +15,7 @@ let postMessage = (req, res) => {
   let content = {
   	'text' : req.body.content
   };
+//  let myRegex = /<img[^>]+src="(http:\/\/[^">]+)"/g; // img태그 src부분의 url만 뽑기위한 정규표현
 
   //user_key를 사용하여 db에 저장된 context가 있는지 확인합니다.
   db.get(user_key, (err, doc) => {
@@ -32,11 +35,22 @@ let postMessage = (req, res) => {
             })
           }
         }, (err, doc) => {
-            return res.json({
-                "message" : {
-                  "text" : getOutputText(data).replace(/<\/br>/gi,"\n").replace(/&emsp;/gi, " ")
-                }
-            });
+
+            var output = getOutputText(data);
+            var kakao_output = {};
+            kakao_output.message = {};
+            kakao_output.message.text = output.replace(/<\/br>/gi,"\n").replace(/&emsp;/gi, " ").replace(/<img[^>]*>/g,""); // replace </br> to enter, &emsp; to space and remove img tags
+
+            var img = data.context.image;
+            // if context.image exists -> print photo
+            if(typeof img !== undefined && img != null){
+              kakao_output.message.photo = {};
+              kakao_output.message.photo.url = "" + img;
+              kakao_output.message.photo.width = 640;
+              kakao_output.message.photo.height = 640;
+            }
+
+            return res.json(kakao_output);
           });
 
         }).catch(function(err){
@@ -62,11 +76,22 @@ let postMessage = (req, res) => {
 
         db.insert(doc);
 
-        return res.json({
-          "message" : {
-            "text" : getOutputText(data).replace(/<\/br>/gi,"\n").replace(/&emsp;/gi, " ")
-          }
-        });
+        var output = getOutputText(data);
+        var kakao_output = {};
+        kakao_output.message = {};
+        kakao_output.message.text = output.replace(/<\/br>/gi,"\n").replace(/&emsp;/gi, " ").replace(/<img[^>]*>/g,""); // replace </br> to enter, &emsp; to space and remove img tags
+
+        var img = data.context.image;
+        // if context.image exists -> print photo
+        if(typeof img !== undefined && img != null){
+          kakao_output.message.photo = {};
+          kakao_output.message.photo.url = "" + img;
+          kakao_output.message.photo.width = 640;
+          kakao_output.message.photo.height = 640;
+        }
+
+        return res.json(kakao_output);
+
       }).catch(function(err){
         return res.json({
             "message" : {
