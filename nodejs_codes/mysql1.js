@@ -47,16 +47,31 @@ let prettify_recipe = (ugly_recipe) => {
   var cooking_step = ugly_recipe['steps'].split('|');
   var cooking_time = ugly_recipe['time'];
   var calorie = ugly_recipe['calorie'];
+  var pretty_recipe = {};
 
   var ingredients = "";
   for(var i=0; i<ingredient.length; i++){
-    ingredients = ingredients + enter + space + ingredient[i];
+    if(i!=0){
+        ingredients = ingredients + ",";
+    }
+    ingredients += " " + ingredient[i];
   }
+  /*
   var cooking_steps = "";
   for(var i=0; i<cooking_step.length; i++){
     cooking_steps = cooking_steps + enter + space + cooking_step[i];
+  }*/
+
+// add number for each steps
+  for(var i=0; i<cooking_step.length; i++){
+    cooking_step[i] = (i+1) + ". " + cooking_step[i];
   }
-  var pretty_recipe = enter + image + enter + "["+ menu +"]" + enter + " - 재료: " + ingredients + enter +" - 만드는 방법: "+ cooking_steps + enter +" - 조리 시간: "+ cooking_time + enter +" - 칼로리: " + calorie + enter;
+
+  pretty_recipe.meta = image + enter + " - 재료: " + ingredients + enter + " - 조리 시간: "+ cooking_time + enter +" - 칼로리: " + calorie ;
+  pretty_recipe.steps = cooking_step;
+  pretty_recipe.total_step_num = cooking_step.length;
+  pretty_recipe.step_num = 0;
+//  var pretty_recipe = +" - 만드는 방법: "+ cooking_steps + enter  + enter;
 
   return pretty_recipe;
 }
@@ -77,7 +92,13 @@ let recommend_recipe = (context) => {
         query += " UNION ALL";
       }
 
-      query += "(SELECT `menu`, `calorie`, `time` FROM " + menu_type + " WHERE `id` IN (SELECT recipe_id FROM `recipe+ingredient` WHERE `ingredient_id` IN (SELECT `id` FROM `ingredient` WHERE `name` LIKE '%" + ingredients[i] + "%')))";
+      query += "(SELECT `menu`, `calorie`, `time` FROM " + menu_type + " WHERE `id` IN (SELECT recipe_id FROM `recipe+ingredient` WHERE `ingredient_id` IN (SELECT `id` FROM `ingredient` WHERE `name` LIKE '%" + ingredients[i] + "%')";
+  /*    if(typeof context.data.preference.hates !== undefined){
+        var hates = context.data.preference.hates;
+        query += " AND `ingredient_id` NOT IN (SELECT `id` FROM `ingredient` WHERE `name` LIKE '%" + hates + "%')";
+      }
+      */
+      query += "))";
   }
 
   query = "SELECT `menu` , COUNT(`menu`) AS `freq`, `calorie`, `time` FROM (" + query + ") AS `M` GROUP BY `menu` ORDER BY `freq` DESC";
