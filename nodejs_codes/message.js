@@ -1,5 +1,3 @@
-// api/kakao/message.js
-
 'use strict';
 
 const conversation = require('../message');
@@ -50,6 +48,14 @@ let postMessage = (req, res) => {
               kakao_output.message.photo.height = 640;
             }
 
+            var url = data.context.url;
+            var label = data.context.label;
+            if(typeof url !== undefined && url != null){
+              kakao_output.message.message_button = {};
+              kakao_output.message.message_button.url = url;
+              kakao_output.message.message_button.label = label;
+            }
+
             return res.json(kakao_output);
           });
 
@@ -88,6 +94,14 @@ let postMessage = (req, res) => {
           kakao_output.message.photo.url = "" + img;
           kakao_output.message.photo.width = 640;
           kakao_output.message.photo.height = 640;
+        }
+
+        var url = data.context.url;
+        var label = data.context.label;
+        if(typeof url !== undefined && url != null && label != null){
+          kakao_output.message.message_button = {};
+          kakao_output.message.message_button.url = url;
+          kakao_output.message.message_button.label = label;
         }
 
         return res.json(kakao_output);
