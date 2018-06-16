@@ -10,7 +10,7 @@
     echo "</br>{$query}</br>";
     $result = mysqli_query($db, $query);
 
-    $query2 = "SELECT `ingredient`.name AS ingredient_name, `recipe+ingredient`.amount AS ingredient_amount FROM `ingredient` INNER JOIN `recipe+ingredient` ON `ingredient`.id=`recipe+ingredient`.id AND `recipe+ingredient`.recipe_id={$recipe_id};";
+    $query2 = "SELECT `ingredient`.name AS ingredient_name, `recipe+ingredient`.amount AS ingredient_amount FROM `ingredient` INNER JOIN `recipe+ingredient` ON `ingredient`.id=`recipe+ingredient`.ingredient_id AND `recipe+ingredient`.recipe_id={$recipe_id};";
     echo "</br>{$query2}</br>";
     $result2 = mysqli_query($db, $query2);
 

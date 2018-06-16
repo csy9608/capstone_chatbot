@@ -7,12 +7,12 @@
       $db = mysqli_connect($db_server, $db_id , $db_password, $db_name);
 
       $recipe_menu = $_POST['menu'];
-      $query = "SELECT * FROM recipe WHERE menu='{$recipe_menu}';";
+      $query = "SELECT * FROM recipe WHERE REPLACE(menu,' ', '')=REPLACE('{$recipe_menu}', ' ', '');";
       echo "</br>{$query}</br>";
       $result = mysqli_query($db, $query);
       $row = mysqli_fetch_array($result);
 
-      $query2 = "SELECT `ingredient`.name AS ingredient_name, `recipe+ingredient`.amount AS ingredient_amount FROM `ingredient` INNER JOIN `recipe+ingredient` ON `ingredient`.id=`recipe+ingredient`.id AND `recipe+ingredient`.recipe_id={$row['id']};";
+      $query2 = "SELECT `ingredient`.name AS ingredient_name, `recipe+ingredient`.amount AS ingredient_amount FROM `ingredient` INNER JOIN `recipe+ingredient` ON `ingredient`.id=`recipe+ingredient`.ingredient_id AND `recipe+ingredient`.recipe_id={$row['id']};";
       echo "</br>{$query2}</br>";
       $result2 = mysqli_query($db, $query2);
 

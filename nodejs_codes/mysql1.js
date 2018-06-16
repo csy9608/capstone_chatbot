@@ -301,7 +301,7 @@ let user_settings = (context) => {
           });
     }
     else {
-      context.data.preference.done = false;
+      context.data.preference.done = true;
       resolved(context);
     }
   });
