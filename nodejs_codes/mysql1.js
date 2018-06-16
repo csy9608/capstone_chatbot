@@ -24,7 +24,7 @@ let prettify_json = (ugly_json) => {
 }
 
 let prettify_term_descript = (ugly_term_descript) => {
-  var pretty_term_descript = "[" + ugly_term_descript['title'] + "]"+ enter +" - " + ugly_term_descript['descript'];
+  var pretty_term_descript = /*"[" + ugly_term_descript['title'] + "]"+ enter +" - " +*/ ugly_term_descript['descript'];
   return pretty_term_descript;
 }
 
@@ -146,8 +146,8 @@ let search_recipe = (context) => {
     context.need_conversation = true;
 
     return new Promise((resolved, rejected) => {
-      var menu = context.data.menu;
-      var query = "SELECT `menu`, `image`, GROUP_CONCAT(CONCAT(`ingredient_name`, ' ', `ingredient_amount`) SEPARATOR '|') as ingredients, `steps`, `time`, `calorie` FROM (SELECT `recipe_id`,`ingredient_id`, `name` as `ingredient_name`, `amount` as `ingredient_amount` FROM `ingredient` AS `I` INNER JOIN `recipe+ingredient` AS `RI` ON `I`.`id`=`RI`.`ingredient_id`) AS `I+RI` INNER JOIN `recipe` AS `R` ON `R`.`id`=`I+RI`.`recipe_id` WHERE `menu`='" + menu + "';";
+      var menu = context.data.menu.replace(/ /gi,""); // erase space in name.
+      var query = "SELECT `menu`, `image`, GROUP_CONCAT(CONCAT(`ingredient_name`, ' ', `ingredient_amount`) SEPARATOR '|') as ingredients, `steps`, `time`, `calorie` FROM (SELECT `recipe_id`,`ingredient_id`, `name` as `ingredient_name`, `amount` as `ingredient_amount` FROM `ingredient` AS `I` INNER JOIN `recipe+ingredient` AS `RI` ON `I`.`id`=`RI`.`ingredient_id`) AS `I+RI` INNER JOIN `recipe` AS `R` ON `R`.`id`=`I+RI`.`recipe_id` WHERE REPLACE(`menu`, ' ', '')='" + menu + "';";
       console.log(query);
       con.query(query, function(err, result){
         if(err){
@@ -312,8 +312,9 @@ let search_term = (context) => {
   context.need_conversation = true;
 
   return new Promise((resolved, rejected) => {
-    var term = context.data.term;
-    var query = "SELECT * FROM term WHERE title='" + term + "';";
+    var term = context.data.term;//.replace(/ /gi,""); // erase space in name
+    var query = "SELECT * FROM term WHERE REPLACE(title, ' ', '')='" + term + "';";
+
     console.log(query);
     con.query(query, function(err, result){
       if(err){

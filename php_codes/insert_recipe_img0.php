@@ -26,6 +26,14 @@
     $time_ = $_POST['time'];
     $calorie = $_POST['calorie'];
 
+    if(empty($time_)){
+      $time_ = 'null';
+    }
+
+    if(empty($calorie)){
+      $calorie = 'null';
+    }
+
     // 1. insert row in recipe table and get id
     echo "</br>Part1 : insert recipe</br>";
     $query1 = "INSERT INTO recipe(`type_id`, `menu`, `image`, `steps`, `time`, `calorie`) VALUES ({$type_id}, '{$menu}', '{$image}', '{$steps}', {$time_}, {$calorie});";
