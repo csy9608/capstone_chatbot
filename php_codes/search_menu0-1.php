@@ -6,16 +6,19 @@
       $db_name = "ibmx_e2d7bb714b1c241";
       $db = mysqli_connect($db_server, $db_id , $db_password, $db_name);
 
+      // user menu name to search recipe.
       $recipe_menu = $_POST['menu'];
-      $query = "SELECT * FROM recipe WHERE REPLACE(menu,' ', '')=REPLACE('{$recipe_menu}', ' ', '');";
+      $query = "SELECT * FROM recipe WHERE REPLACE(menu,' ', '')=REPLACE('{$recipe_menu}', ' ', '');"; // ignore space in menu name.
       echo "</br>{$query}</br>";
       $result = mysqli_query($db, $query);
       $row = mysqli_fetch_array($result);
 
+      // select recipe and ingredients with amount from recipe, recipe+ingredient, ingredient table.
       $query2 = "SELECT `ingredient`.name AS ingredient_name, `recipe+ingredient`.amount AS ingredient_amount FROM `ingredient` INNER JOIN `recipe+ingredient` ON `ingredient`.id=`recipe+ingredient`.ingredient_id AND `recipe+ingredient`.recipe_id={$row['id']};";
       echo "</br>{$query2}</br>";
       $result2 = mysqli_query($db, $query2);
 
+      // print recipe results.
       echo "Search Success";
       echo "<div id='img_div'>";
       echo "<p><img src='{$row['image']}' alt='image_load_failed' height='42' width='42'></p>";

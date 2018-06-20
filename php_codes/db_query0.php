@@ -10,8 +10,11 @@
     if(mysqli_connect_errno())
       echo "[error]: ".mysqli_connect_error();
 
+    // get query by POST parameter.
     $query = $_POST['query'];
     echo "<p>".$query."</p>";
+
+    // send query to database and print result.
     $result = mysqli_query($db, $query);
     while ($row = mysqli_fetch_array($result)) {
       echo "<p>";
