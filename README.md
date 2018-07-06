@@ -9,9 +9,9 @@
   4. cooking term description 
 
 - Web application (demo version) </br>
- : https://test-csy.mybluemix.net/
+ : http://its-recipe-for-you.mybluemix.net/
 
 - Mobile (demo version) </br>
-: Kakao plus friend  `recipebot_demo`
+: Kakao plus friend  `레시피봇 냠냠이`
 
 - JOIN WITH US :)
