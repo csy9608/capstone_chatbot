@@ -26,9 +26,9 @@
     echo $query;
 
     $db_server = "localhost";
-    $db_id = "csy9608";
-    $db_password = "tjdud9608";
-    $db_name = "csy9608";
+    $db_id = "id_";
+    $db_password = "pwd_";
+    $db_name = "id_";
     $db = mysqli_connect($db_server, $db_id , $db_password, $db_name);
     $msg = "";
 
