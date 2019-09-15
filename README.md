@@ -23,11 +23,14 @@
 4) 카카오톡으로 체험하기 : 플러스 친구  `레시피봇 냠냠이`
 
 5) 데모 영상
+
     1. 웹 버전
-      [![Video Label](http://img.youtube.com/vi/HTx6_19vPcs/0.jpg)](https://www.youtube.com/watch?v=HTx6_19vPcs&feature=youtu.be)
+    
+        [![Video Label](http://img.youtube.com/vi/HTx6_19vPcs/0.jpg)](https://www.youtube.com/watch?v=HTx6_19vPcs&feature=youtu.be)
       
-    2. 카카오톡 버전:
-      [![Video Label](http://img.youtube.com/vi/gnRivyIVqpY/0.jpg)](https://www.youtube.com/watch?v=gnRivyIVqpY&feature=youtu.be)
+    2. 카카오톡 버전
+    
+        [![Video Label](http://img.youtube.com/vi/gnRivyIVqpY/0.jpg)](https://www.youtube.com/watch?v=gnRivyIVqpY&feature=youtu.be)
 
 6) 레퍼런스
     - https://github.com/hjjo/chatbot-sample
