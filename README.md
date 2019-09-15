@@ -18,3 +18,6 @@
 
 application code is based on:
 https://github.com/hjjo/chatbot-sample
+
+https://www.youtube.com/watch?v=HTx6_19vPcs&feature=youtu.be
+https://www.youtube.com/watch?v=gnRivyIVqpY&feature=youtu.be
