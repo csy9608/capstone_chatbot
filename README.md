@@ -15,3 +15,6 @@
 : Kakao plus friend  `레시피봇 냠냠이`
 
 - JOIN WITH US :)
+
+application code is based on:
+https://github.com/hjjo/chatbot-sample
