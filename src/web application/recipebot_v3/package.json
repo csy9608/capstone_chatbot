@@ -30,7 +30,7 @@
     "json2csv": "^3.11.5",
     "moment": "^2.21.0",
     "moment-timezone": "^0.5.14",
-    "mongoose": "^5.0.12",
+    "mongoose": "^5.7.5",
     "mysql": "^2.15.0",
     "request": "^2.85.0",
     "tinyurl": "^1.1.2",
